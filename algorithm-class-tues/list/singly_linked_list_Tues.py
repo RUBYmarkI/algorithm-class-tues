@@ -4,11 +4,30 @@
 """
 1. 단순 연결 구조를 위한 Node 클래스
 2. 각 노드는 데이터 필드(data)와 다음 노드를 가리키는 링크 필드(link)를 가짐
-3. append(node): 현재 노드 뒤에 주어진 노드를 연결
+3. append(node): 현재 노드(self) 뒤에 주어진 노드(new)를 연결
 4. popNext(): 현재 노드의 다음 노드를 리스트에서 제거하고, 그 노드를 반환
 """
 # 단순연결구조를 위한 Node 클래스
+class Node:
+    def __init__(self, elem, link = None):
+        self.data = elem # 데이터 필드
+        self.link = link # 링크 필드
+        
+    def append(self, new):
+        # 현재 노드 (self) 뒤에 새로운 노드 (new)를 추가하는 연산
+        if new is not None:
+            new.link = self.link
+            self.link = new
+    
+    def popNext(self):
+        # 현재 노드의 다음 노드를 리스트에서 제거하고, 그 노드를 반환
+        deleted = self.link
+        if deleted is not None:
+            self.link = deleted.link
+            deleted.link = deleted.link
+            return deleted
 
+    
 # 코드 3.2: 단순연결리스트 클래스
 """
 1. 단순 연결 리스트 구조를 관리하는 클래스
@@ -27,7 +46,104 @@
 """
 # 단순연결리스트 클래스
 
+class LinkedList:
+    def __init__(self):
+        self.head = None
 
+    def isEmpty(self):
+        # 리스트가 비어있는지 검사
+        return self.head == None
+    
+    def isFull(self):
+        # 리스트의 포화상태 검사
+        return False
+    
+    def getNode(self, pos):
+        # pos번째에 있는 노드를 반환하기
+        # 리스트의 인덱스는 0부터 시작
+        if pos < 0: return None # pos는 invaild 경우
+        if self.head == None: # 주어진 리스트가 공백
+            return None
+        else:
+            ptr = self.head
+            for i in range(pos):
+                if ptr == None: # pos가 리스트 크기보다 큰 경우
+                    return None
+                ptr = ptr.link # 링크따라 이동
+            return ptr # pos에 있는 노드 반환
+    
+    def getEntry(self, pos):
+        # 리스트의 pos 위치에 있는 노드의 데이터를 반환
+        node = self.getNode(pos) # getNode()를 이용하여 pos 위치에 있는 노드 먼저 찾기
+        if node == None:
+            return None
+        else:
+            return node.data
+        
+    def insert(self, pos, elem):
+        # 리스트의 pos 위치에 새로운 노드를 추가
+        if pos < 0: return # 자동으로 유효하지 않는 위치에 대해 ValueError 발생
+
+        new = Node(elem) # 또는 Node(elem, None) # 1. 새 노드 생성
+        before = self.getNode(pos - 1) # 2. pos - 1 위치의 노드 가져오기
+        # 3. before 노드의 위치에 따라 구분
+        if before is None:
+            if pos == 0: # 1) 머리 노드로 삽입
+                new.link = self.head
+                self.head = new
+                return
+            else: # pos가 리스트의 범위를 벗어나는 경우
+                raise IndexError("리스트 밖에 있는 위치")
+        else: # 3) 중간노드로 삽입
+            before.append(new) # before 노드 뒤에 삽입
+
+    def delete(self, pos):
+        #리스트에 pos 위치에 있는 노드 삭제
+        if pos < 0:
+            raise IndexError("empty 또는 리스트 범위 밖 오류")
+        
+        before = self.getNode(pos - 1) # 1. 삭제할 노드 이전 노드
+        # 2. before 노드의 위치에 따라 구분
+        if before == None:
+            if pos == 0: # 머리 노드 삭제
+                deleted = self.head
+                self.head = deleted.link
+                deleted.link = None # 연결 해제
+                return deleted
+            else:
+                raise ValueError("리스트 범위 밖 오류")
+        else:
+            before.popNext() # 3) 중간 노드로 삭제
+
+    def size(self):
+        # 리스트의 전체 노드의 개수 구하기
+        if self.head == None: # 리스트가 빈 경우
+            return 0
+        
+        else:
+            ptr = self.head
+            count = 0
+            while ptr is not None:
+                count += 1
+                ptr = ptr.link
+                return count
+            
+    def display(self, msg = "LinkedList"):
+        # 리스트의 내용을 출력
+        print(msg, end = ' ')
+        ptr = self.head
+        while ptr is not None:
+            print(ptr.data, end = '->')
+            ptr = ptr.link
+        print("None")
+
+    def replace(self, pos, elem):
+        # 리스트의 pos에 있는 노드의 데이터 변경 (QUIZ p. 106)
+        node = self.getNode(pos)
+        if node != None:
+            node.data = elem
+        else:
+            return 
 
 
 
@@ -42,7 +158,7 @@
     
    
 #=========================================================
-# 테스트 프로그래램
+# 테스트 프로그램
 #=========================================================
 def test_code_3_3():
     #1. 연결 리스트 생성
@@ -77,6 +193,7 @@ def test_code_3_3():
 
 
 if __name__ == "__main__" :
+    pass
     # test_code_3_3()  
     # test()
     # quiz_2()
